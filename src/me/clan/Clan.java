@@ -7,8 +7,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.clan.app.CreateHologram;
 import me.clan.command.cClan;
 import me.clan.database.Connections;
+import me.clan.inventory.SemClanInventory;
 import me.clan.listener.PlayerEvent;
 
 public class Clan extends JavaPlugin {
@@ -23,7 +25,9 @@ public class Clan extends JavaPlugin {
 		Connections.openConnectionMySQL();
 
 		new PlayerEvent(plugin);
+		new SemClanInventory(plugin);
 
+		CreateHologram.update();
 		CommandsRegister(plugin);
 
 	}

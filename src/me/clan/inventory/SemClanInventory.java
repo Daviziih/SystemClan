@@ -13,6 +13,8 @@ import org.bukkit.inventory.Inventory;
 
 import me.clan.Clan;
 import me.davi.api.Api;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class SemClanInventory implements Listener {
 
@@ -20,16 +22,16 @@ public class SemClanInventory implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, main);
 	}
 
-	private static String nomeInventory = "§7Menu de Kits";
+	private static String nomeInventory = "§7Menu de Clans";
 	private static Inventory inv = Bukkit.createInventory(null, 9 * 3, nomeInventory);
 
 	public static void openInventoryKits(Player p) {
 
 		Api.setItemInventory(inv, 11, Material.NAME_TAG, "§bCrie sua Clan",
-				Arrays.asList("", "§7Clique para criar sua clan", "", "§aClique para selecionar!"));
+				Arrays.asList("", "§7Clique para criar sua clan", "", "§eClique para selecionar!"));
 
-		Api.setItemInventory(inv, 15, Material.EMERALD, "§bConvites para Clan",
-				Arrays.asList("", "§7Entre em uma Clan já existente", "", "§aClique para selecionar!"));
+		Api.setItemInventory(inv, 15, Material.BEACON, "§bConvites para Clan",
+				Arrays.asList("", "§7Entre em uma Clan já existente", "", "§eClique para selecionar!"));
 
 		p.openInventory(inv);
 	}
@@ -44,6 +46,10 @@ public class SemClanInventory implements Listener {
 			e.setCancelled(true);
 			if (e.getCurrentItem() != null) {
 				if (e.getSlot() == 11) {
+					TextComponent texto = new TextComponent("§9§lCLAN§f Clique aqui para criar sua §9§lCLÃ§f!");
+					texto.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/clan criar (clanName)"));
+					p.spigot().sendMessage(texto);
+					p.closeInventory();
 				}
 			}
 		}
