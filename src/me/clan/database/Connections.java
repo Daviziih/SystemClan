@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import me.clan.Clan;
 
@@ -65,12 +66,17 @@ public class Connections {
 
 	public static String serializeLoc(Location location) {
 		return location.getWorld().getName() + "," + location.getBlockX() + "," + location.getBlockY() + ","
-				+ location.getBlockZ();
+				+ location.getBlockZ() + "," + location.getPitch() + "," + location.getYaw();
 	}
 
-	public static Location deserializeLoc(String str) {
-		String[] string = str.split(",");
-		return new Location(Bukkit.getWorld(string[0]), Integer.parseInt(string[1]), Integer.parseInt(string[2]),
-				Integer.parseInt(string[3]));
+	public static Location stringToLocation(String loc) {
+		String[] str = loc.split(",");
+		World world = Bukkit.getServer().getWorld(str[0]);
+		double x = Double.parseDouble(str[1]);
+		double y = Double.parseDouble(str[2]);
+		double z = Double.parseDouble(str[3]);
+		float pitch = Float.parseFloat(str[4]);
+		float yaw = Float.parseFloat(str[5]);
+		return new Location(world, x, y, z, pitch, yaw);
 	}
 }

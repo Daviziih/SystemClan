@@ -26,7 +26,7 @@ public class Clan extends JavaPlugin {
 	public static Clan plugin;
 	public Command commandManger;
 
-	private String sql = "INSERT INTO PlayerClans (CLAN, OWNER, MEMBERS, LEVEL) VALUES ";
+	private String sql = "INSERT INTO PlayerClans (CLAN, OWNER, MEMBERS, LEVEL, LOCATION) VALUES ";
 	private String membroslista = "";
 
 	private String sqlPlayers = "INSERT INTO PlayerCargos (UUID, PLAYER, CARGO, CLAN) VALUES ";
@@ -66,10 +66,10 @@ public class Clan extends JavaPlugin {
 					String[] mebroName = clanMembers.split(",");
 					lista.add(PlayerCargo.cachePlayer.get(mebroName.toString()));
 					String clanLevel = rs1.getString("LEVEL");
-					// String clanLocaltion = rs1.getString("LOCATION");
+					String clanLocaltion = rs1.getString("LOCATION");
 
-					PlayerClan.cacheClan.put(playerName.toLowerCase(),
-							new PlayerClan(clanName, clanOwner, lista, clanLevel, null));
+					PlayerClan.cacheClan.put(playerName, new PlayerClan(clanName, clanOwner, lista, clanLevel,
+							Connections.stringToLocation(clanLocaltion)));
 
 				}
 			}
@@ -107,12 +107,6 @@ public class Clan extends JavaPlugin {
 			id--;
 		});
 
-		try {
-			Connections.con.prepareStatement(sqlPlayers + ";").executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
 		id = PlayerClan.cacheClan.size();
 
 		if (id == 0) {
@@ -123,21 +117,15 @@ public class Clan extends JavaPlugin {
 
 			PlayerClan clan = value;
 
-			try {
-				Connections.con.prepareStatement("DELETE FROM playerclans WHERE id != -1;").executeUpdate();
 
-				List<PlayerCargo> membersList = clan.getMembros();
-				membersList.forEach(sla -> {
-					membroslista += sla.getJogador() + ",";
-				});
+			List<PlayerCargo> membersList = clan.getMembros();
+			membersList.forEach(sla -> {
+				membroslista += sla.getJogador() + ",";
+			});
 
-				sql += "('" + clan.getClan() + "','" + clan.getOwner() + "','" + membroslista + "','" + clan.getLevel()
-						+ "')";
-				membroslista = "";
-
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			sql += "('" + clan.getClan() + "','" + clan.getOwner() + "','" + membroslista + "','" + clan.getLevel()
+					+ "','" + Connections.serializeLoc(clan.getLocation()) + "')";
+			membroslista = "";
 
 			if (1 < id) {
 				sql += ",";
@@ -148,6 +136,7 @@ public class Clan extends JavaPlugin {
 		System.err.println("[" + sql + "]");
 
 		try {
+			Connections.con.prepareStatement(sqlPlayers + ";").executeUpdate();
 			Connections.con.prepareStatement(sql + ";").executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();

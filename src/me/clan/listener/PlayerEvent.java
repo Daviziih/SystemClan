@@ -5,8 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 import me.clan.Clan;
+import me.clan.command.cClan;
 import me.clan.construction.PlayerCargo;
 import me.clan.construction.PlayerClan;
 import me.clan.enun.Cargos;
@@ -28,6 +30,17 @@ public class PlayerEvent implements Listener {
 
 		if (!PlayerClan.cacheClan.containsKey(p.getName())) {
 			PlayerClan.cacheClan.put(p.getName(), new PlayerClan(null, null, null, null, null));
+		}
+	}
+
+	@EventHandler
+	private void onMove(PlayerMoveEvent e) {
+		Player p = e.getPlayer();
+		if (cClan.clanHomeCooldown.contains(p)) {
+			cClan.clanHomeCooldown.remove(p);
+			cClan.clanHomeIr.remove(p);
+			p.sendMessage("§9§lCLAN§f Você se mexeu, o teleporte foi cancelando!");
+			return;
 		}
 	}
 }

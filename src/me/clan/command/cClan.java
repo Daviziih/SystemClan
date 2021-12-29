@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -14,6 +16,8 @@ import me.clan.Clan;
 import me.clan.construction.PlayerCargo;
 import me.clan.construction.PlayerClan;
 import me.clan.enun.Cargos;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class cClan extends Command {
 
@@ -23,6 +27,11 @@ public class cClan extends Command {
 
 	public HashMap<String, String> clanConvidar = new HashMap<>();
 	public HashMap<String, Long> clanConvidarCooldown = new HashMap<>();
+
+	public static ArrayList<Player> clanHomeCooldown = new ArrayList<>();
+	public static ArrayList<Player> clanHomeIr = new ArrayList<>();
+
+	public static ArrayList<Player> clanNexus = new ArrayList<>();
 
 	@Override
 	public boolean execute(CommandSender sender, String label, String[] args) {
@@ -72,7 +81,7 @@ public class cClan extends Command {
 				cacheClan.setLocation(null);
 
 			} else if (args[0].equalsIgnoreCase("excluir") || args[0].equalsIgnoreCase("delete")) {
-				if (cachePlayer.getClanName() != null) {
+				if (cachePlayer.getClanName() == null) {
 					p.sendMessage("§9§lCLAN§f Você não faz parte de um clã!");
 					return true;
 				}
@@ -87,6 +96,15 @@ public class cClan extends Command {
 					if (cps.getClanName() == cps.getClanName()) {
 						cps.setCargo(Cargos.NENHUM);
 						cps.setClanName(null);
+					}
+				}
+				for (PlayerClan teste : PlayerClan.getAll()) {
+					if (teste.getClan() == teste.getClan()) {
+						teste.setClan(null);
+						teste.setOwner(null);
+						teste.setMembros(null);
+						teste.setLevel(null);
+						teste.setLocation(null);
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("convidar")) {
@@ -172,7 +190,7 @@ public class cClan extends Command {
 					p.sendMessage("§9§lCLAN§f O Jogador §b" + alvoCahePlayer.getJogador()
 							+ "§f expulso do clã com §a§lSUCESSO§f!");
 
-					List<PlayerCargo> list = alvoCacheClan.getMembros();
+					List<PlayerCargo> list = cacheClan.getMembros();
 					list.remove(alvoCahePlayer);
 
 					alvoCahePlayer.setCargo(Cargos.NENHUM);
@@ -184,7 +202,7 @@ public class cClan extends Command {
 					p.sendMessage("§9§lCLAN§f O Jogador §b" + alvoCahePlayer.getJogador()
 							+ "§f expulso do clã com §a§lSUCESSO§f!");
 
-					List<PlayerCargo> list = alvoCacheClan.getMembros();
+					List<PlayerCargo> list = cacheClan.getMembros();
 					list.remove(alvoCahePlayer);
 
 					alvoCahePlayer.setCargo(Cargos.NENHUM);
@@ -218,7 +236,7 @@ public class cClan extends Command {
 				}
 				String nomeClan = args[1].toString();
 				if (cachePlayer.getClanName() != null) {
-					p.sendMessage("§9§lCLAN§f Você já faz parte de uma clã!");
+					p.sendMessage("§9§lCLAN§f Você já faz parte de um clã!");
 					return true;
 				}
 				if (clanConvidar.containsKey(p.getName())) {
@@ -226,7 +244,7 @@ public class cClan extends Command {
 					PlayerCargo cachePlayerConvite = PlayerCargo.cachePlayer.get(jogador);
 					PlayerClan cacheClanConvite = PlayerClan.cacheClan.get(jogador);
 					if (nomeClan.equalsIgnoreCase(cachePlayerConvite.getClanName())) {
-						if (cacheClanConvite.getMembros().size() < 1) {
+						if (cacheClanConvite.getMembros().size() < 15) {
 							if (cachePlayerConvite.getClanName() != null) {
 
 								List<PlayerCargo> list = cacheClanConvite.getMembros();
@@ -235,6 +253,11 @@ public class cClan extends Command {
 								cachePlayer.setCargo(Cargos.MEMBRO);
 								cachePlayer.setClanName(cacheClanConvite.getClan());
 								cacheClan.setMembros(list);
+
+								PlayerClan.cacheClan.put(p.getName(),
+										new PlayerClan(cacheClanConvite.getClan(), cacheClanConvite.getOwner(),
+												cacheClanConvite.getMembros(), cacheClanConvite.getLevel(),
+												cacheClanConvite.getLocation()));
 
 								p.sendMessage("§9§lCLAN§f Você entrou no clã §b§l" + cachePlayer.getClanName()
 										+ "§f com sucesso!");
@@ -248,9 +271,91 @@ public class cClan extends Command {
 				} else {
 					p.sendMessage("§9§lCLAN§f Você não tem nenhum convite para entrar em um clã!");
 				}
+			} else if (args[0].equalsIgnoreCase("setnexus")) {
+				if (cachePlayer.getClanName() == null) {
+					p.sendMessage("§9§lCLAN§f Você não é membro de nenhum clã!");
+					return true;
+				}
+				if (cachePlayer.getCargo() != Cargos.LIDER) {
+					p.sendMessage("§9§lCLAN§f Somente o lider consegue setar o §b§lNEXUS§f do clan");
+					return true;
+				}
+				if (cacheClan.getLocation() != null) {
+					p.sendMessage("§9§lCLAN§f O §b§lNEXUS§f do clan já foi setado!");
+					return true;
+				}
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						clanNexus.remove(p);
+					}
+				}.runTaskLater(Clan.plugin, 500);
+				clanNexus.add(p);
+				TextComponent texto = new TextComponent(
+						"§9§lCLAN§f §fClique §a§lAQUI§f para setar o §b§lNEXUS§f do seu clan");
+				texto.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/clan nexussetar12"));
+				p.spigot().sendMessage(texto);
+			} else if (args[0].equalsIgnoreCase("nexussetar12")) {
+				if (clanNexus.contains(p)) {
+					if (cachePlayer.getClanName() == null) {
+						p.sendMessage("§9§lCLAN§f Você não é membro de nenhum clã!");
+						return true;
+					}
+					if (cachePlayer.getCargo() != Cargos.LIDER) {
+						p.sendMessage("§9§lCLAN§f Somente o lider consegue setar o §b§lNEXUS§f do clan");
+						return true;
+					}
+					if (cacheClan.getLocation() != null) {
+						p.sendMessage("§9§lCLAN§f O §b§lNEXUS§f do clan já foi setado!");
+						return true;
+					}
+					if (!p.getWorld().getName().equals("world")) {
+						p.sendMessage("§4§lERRO§f Você não consegue spawnar o §b§lNEXUS§f aqui!");
+						return true;
+					}
+					if (p.getLocation().getBlockY() > 150) {
+						p.sendMessage("§4§lERRO§f Você pode spawnar o §b§lNEXUS§f até a §a§lALTURA§f 150!");
+						return true;
+					}
+					cacheClan.setLocation(p.getLocation());
+					clanNexus.remove(p);
+					p.sendMessage("§9§lCLAN§f O §b§lNEXUS§f do clan foi setado com §a§lSUCESSO§f!");
+					Bukkit.getWorld("world").spawn(p.getLocation(), EnderCrystal.class);
+				}
+			} else if (args[0].equalsIgnoreCase("nexus") || args[0].equalsIgnoreCase("home")) {
+				if (cachePlayer.getClanName() == null) {
+					p.sendMessage("§9§lCLAN§f Você não é membro de nenhum clã!");
+					return true;
+				}
+				if (cacheClan.getLocation() == null) {
+					p.sendMessage("§9§lCLAN§f O §b§lNEXUS§f do seu clan ainda não foi setado");
+					return true;
+				}
+				if (p.hasPermission("bypass.teleporte")) {
+					Location location = cacheClan.getLocation();
+					location.add(0, 0.2, 0);
+					p.teleport(location);
+					p.sendMessage("§9§lCLAN§f Você foi teleportado para o §b§lNEXUS§f do clan");
+				} else {
+					Bukkit.getScheduler().scheduleSyncDelayedTask(Clan.plugin, new Runnable() {
+						public void run() {
+							if (clanHomeIr.contains(p)) {
+								clanHomeIr.remove(p);
+								clanHomeCooldown.remove(p);
+								Location location = cacheClan.getLocation();
+								location.add(0, 0.2, 0);
+								p.teleport(location);
+								p.sendMessage("§9§lCLAN§f Você foi teleportado para o §b§lNEXUS§f do clan");
+							}
+						}
+					}, 100L);
+					clanHomeIr.add(p);
+					clanHomeCooldown.add(p);
+					p.sendMessage("§9§lHOME§f Aguarde §c5 Segundos§f para teletransportar");
+				}
 			} else if (args[0].equalsIgnoreCase("teste")) {
 				System.out.println("Clan: " + cachePlayer.getClanName() + "Cargo: " + cachePlayer.getCargo()
-						+ "Members: " + cacheClan.getMembros().toString());
+						+ "Members: " + cacheClan.getMembros().toString() + " Location§e" + cacheClan.getLocation());
 			}
 		}
 		return false;

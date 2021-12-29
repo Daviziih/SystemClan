@@ -2,6 +2,7 @@ package me.clan.construction;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Location;
 
@@ -61,6 +62,10 @@ public class PlayerClan {
 
 	public void setLevel(String level) {
 		this.level = level;
+	}
+
+	public static List<PlayerClan> getAll() {
+		return cacheClan.values().stream().collect(Collectors.toList());
 	}
 
 }

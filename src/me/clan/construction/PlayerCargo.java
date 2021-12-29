@@ -1,9 +1,13 @@
 package me.clan.construction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import me.clan.enun.Cargos;
 
@@ -57,6 +61,19 @@ public class PlayerCargo {
 
 	public static List<PlayerCargo> getAll() {
 		return PlayerCargo.cachePlayer.values().stream().collect(Collectors.toList());
+	}
+
+	public List<Player> getClanOnlinePlayers() {
+		ArrayList<Player> jogadoresOn = new ArrayList<>();
+		for (Player on : Bukkit.getOnlinePlayers()) {
+			PlayerCargo cpOn = cachePlayer.get(on.getName());
+			if (cpOn.getClanName() != null) {
+				if (cpOn.getClanName().equals(getClanName())) {
+					jogadoresOn.add(on);
+				}
+			}
+		}
+		return jogadoresOn;
 	}
 
 }
