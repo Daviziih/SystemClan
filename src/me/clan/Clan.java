@@ -154,6 +154,8 @@ public class Clan extends JavaPlugin {
 			CommandMap newCommand = (CommandMap) commandField.get(Bukkit.getServer());
 
 			newCommand.register("clan", new cClan("clan"));
+			
+			Teste
 
 		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
 		}
