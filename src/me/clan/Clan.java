@@ -68,8 +68,7 @@ public class Clan extends JavaPlugin {
 					String clanLevel = rs1.getString("LEVEL");
 					String clanLocaltion = rs1.getString("LOCATION");
 
-					PlayerClan.cacheClan.put(playerName, new PlayerClan(clanName, clanOwner, lista, clanLevel,
-							Connections.stringToLocation(clanLocaltion)));
+					PlayerClan.cacheClan.put(playerName, new PlayerClan(clanName, clanOwner, lista, clanLevel, null));
 
 				}
 			}
@@ -122,9 +121,16 @@ public class Clan extends JavaPlugin {
 				membroslista += sla.getJogador() + ",";
 			});
 
-			sql += "('" + clan.getClan() + "','" + clan.getOwner() + "','" + membroslista + "','" + clan.getLevel()
-					+ "','" + Connections.serializeLoc(clan.getLocation()) + "')";
-			membroslista = "";
+			try {
+				Connections.con.prepareStatement("DELETE FROM PlayerClans WHERE clan != -1;").executeUpdate();
+				
+				sql += "('" + clan.getClan() + "','" + clan.getOwner() + "','" + membroslista + "','" + clan.getLevel()
+						+ "','" + Connections.serializeLoc(clan.getLocation()) + "')";
+				membroslista = "";
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
 			if (1 < id) {
 				sql += ",";

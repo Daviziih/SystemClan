@@ -48,7 +48,7 @@ public class cClan extends Command {
 		if (args.length >= 1) {
 			if (args[0].equalsIgnoreCase("criar")) {
 				if (args.length == 1) {
-					p.sendMessage("§9§lCLAN§f Use cooreto: §9/clan criar (name)");
+					p.sendMessage("§9§lCLAN§f Use correto: §9/clan criar (name)");
 					return true;
 				}
 				String nomeClan = args[1].toString();
@@ -62,6 +62,10 @@ public class cClan extends Command {
 				}
 				if (!nomeClan.matches("[a-zA-Z0-9]*")) {
 					p.sendMessage("§9§lCLAN§f O nome do seu clã só pode ter letras e números");
+					return true;
+				}
+				if (nomeClan == cacheClan.getClan()) {
+					p.sendMessage("Teste");
 					return true;
 				}
 				p.sendMessage("§9§lCLAN§f O Clã §b" + nomeClan + "§f foi criado com sucesso");
@@ -98,13 +102,13 @@ public class cClan extends Command {
 						cps.setClanName(null);
 					}
 				}
-				for (PlayerClan teste : PlayerClan.getAll()) {
-					if (teste.getClan() == teste.getClan()) {
-						teste.setClan(null);
-						teste.setOwner(null);
-						teste.setMembros(null);
-						teste.setLevel(null);
-						teste.setLocation(null);
+				for (PlayerClan cps : PlayerClan.getAll()) {
+					if (cps.getClan() == cps.getClan()) {
+						cps.setLevel(null);
+						cps.setClan(null);
+						cps.setLocation(null);
+						cps.setMembros(null);
+						cps.setOwner(null);
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("convidar")) {
