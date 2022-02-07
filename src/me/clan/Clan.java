@@ -42,7 +42,7 @@ public class Clan extends JavaPlugin {
 
 		CreateHologram.update();
 		CommandsRegister(plugin);
-
+aa
 		try {
 
 			ResultSet rs = Connections.con.prepareStatement("SELECT * FROM PlayerCargos;").executeQuery();
